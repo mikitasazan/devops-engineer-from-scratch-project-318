@@ -38,10 +38,10 @@ docker-run:
 	docker run --rm -p 8080:8080 -p 9090:9090 bulletin-board:local
 
 deploy:
-	ansible-playbook -i ansible/inventory ansible/deploy.yml -e image=$(IMAGE)
+	ansible-playbook -i ansible/inventory ansible/playbooks/deploy.yml -e image=$(IMAGE)
 
 monitoring-deploy:
-	ansible-playbook -i ansible/inventory ansible/monitoring.yml
+	ansible-playbook -i ansible/inventory ansible/playbooks/monitoring.yml
 
 lint-fix:
 	./gradlew spotlessApply

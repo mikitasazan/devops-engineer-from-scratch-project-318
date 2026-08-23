@@ -35,10 +35,10 @@ back.
 2. Copy and encrypt `ansible/group_vars/app/vault.yml.example` and
    `ansible/group_vars/monitoring/vault.yml.example` with Ansible Vault.
 3. Install roles and collections with `make ansible-install`.
-4. Prepare the application VM with `ansible/playbook.yml`, then deploy the
+4. Prepare the application VM with `ansible/playbooks/playbook.yml`, then deploy the
    image with `make deploy IMAGE=...`.
 5. Deploy Prometheus, Loki, and Grafana with `make monitoring-deploy`.
-6. Point DNS to the application VM, run `ansible/certbot.yml`, and verify the
+6. Point DNS to the application VM, run `ansible/playbooks/certbot.yml`, and verify the
    HTTPS URL.
 
 Ports: SSH `22`, HTTP/HTTPS `80/443`, application `8080`, management `9090`,
@@ -48,10 +48,10 @@ group.
 
 ## Ansible
 
-- `ansible/playbook.yml` prepares the server and installs Docker.
-- `ansible/deploy.yml` pulls the selected image and starts the application.
-- `ansible/certbot.yml` configures Let’s Encrypt certificate renewal.
-- `ansible/monitoring.yml` deploys Prometheus on the `monitoring` host group.
+- `ansible/playbooks/playbook.yml` prepares the server and installs Docker.
+- `ansible/playbooks/deploy.yml` pulls the selected image and starts the application.
+- `ansible/playbooks/certbot.yml` configures Let’s Encrypt certificate renewal.
+- `ansible/playbooks/monitoring.yml` deploys Prometheus on the `monitoring` host group.
 - `ansible/requirements.yml` lists roles and collections.
 - `ansible/group_vars/app/vars.yml` contains non-secret variables.
 
@@ -79,8 +79,8 @@ queries such as `{job="containers", level="ERROR"}` for errors or
 `{job="containers", app="bulletins"}` for application logs.
 
 ```bash
-ansible-playbook -i ansible/inventory ansible/playbook.yml --syntax-check
-ansible-playbook -i ansible/inventory ansible/deploy.yml --syntax-check
+ansible-playbook -i ansible/inventory ansible/playbooks/playbook.yml --syntax-check
+ansible-playbook -i ansible/inventory ansible/playbooks/deploy.yml --syntax-check
 make lint
 make smoke APP_URL=https://app.example.com PROMETHEUS_URL=http://monitoring.example.com:9090
 ```

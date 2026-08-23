@@ -24,14 +24,14 @@
 
     - name: Install Prometheus configuration
       ansible.builtin.template:
-        src: "{{ playbook_dir }}/../monitoring/prometheus/prometheus.yml"
+        src: "{{ playbook_dir }}/../../monitoring/prometheus/prometheus.yml"
         dest: "{{ prometheus_root }}/config/prometheus.yml"
         mode: "0644"
       notify: Restart Prometheus
 
     - name: Install Prometheus alert rules
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../monitoring/prometheus/rules/alerts.yml"
+        src: "{{ playbook_dir }}/../../monitoring/prometheus/rules/alerts.yml"
         dest: "{{ prometheus_root }}/rules/alerts.yml"
         mode: "0644"
       notify: Restart Prometheus
@@ -75,7 +75,7 @@
 
     - name: Install Loki configuration
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../monitoring/loki/loki.yml"
+        src: "{{ playbook_dir }}/../../monitoring/loki/loki.yml"
         dest: "{{ prometheus_root }}/loki/loki.yml"
         mode: "0644"
       notify: Restart Loki
@@ -111,7 +111,7 @@
 
     - name: Install Grafana datasource provisioning
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../monitoring/grafana/provisioning/datasources/datasources.yml"
+        src: "{{ playbook_dir }}/../../monitoring/grafana/provisioning/datasources/datasources.yml"
         dest: "{{ prometheus_root }}/grafana/provisioning/datasources/datasources.yml"
         owner: 472
         group: 472
@@ -120,7 +120,7 @@
 
     - name: Install Grafana dashboard provisioning
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../monitoring/grafana/provisioning/dashboards/dashboards.yml"
+        src: "{{ playbook_dir }}/../../monitoring/grafana/provisioning/dashboards/dashboards.yml"
         dest: "{{ prometheus_root }}/grafana/provisioning/dashboards/dashboards.yml"
         owner: 472
         group: 472
@@ -129,7 +129,7 @@
 
     - name: Install Grafana dashboard
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../monitoring/grafana/dashboards/overview.json"
+        src: "{{ playbook_dir }}/../../monitoring/grafana/dashboards/overview.json"
         dest: "{{ prometheus_root }}/grafana/dashboards/overview.json"
         owner: 472
         group: 472
@@ -138,7 +138,7 @@
 
     - name: Install Grafana contact point provisioning
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../monitoring/grafana/provisioning/alerting/contactpoints.yml"
+        src: "{{ playbook_dir }}/../../monitoring/grafana/provisioning/alerting/contactpoints.yml"
         dest: "{{ prometheus_root }}/grafana/provisioning/alerting/contactpoints.yml"
         owner: 472
         group: 472

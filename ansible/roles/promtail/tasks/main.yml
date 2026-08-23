@@ -12,7 +12,7 @@
 
 - name: Install Promtail configuration
   ansible.builtin.template:
-    src: "{{ playbook_dir }}/../monitoring/promtail/promtail.yml"
+    src: "{{ playbook_dir }}/../../monitoring/promtail/promtail.yml"
     dest: /opt/promtail/promtail.yml
     mode: "0644"
 
