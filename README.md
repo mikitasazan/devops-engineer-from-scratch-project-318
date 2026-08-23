@@ -56,3 +56,27 @@ docker compose --env-file .env.example --env-file .env.s3 \
 MinIO creates the bucket before the application starts. Nginx can be added
 with `docker-compose.nginx.yml`. The HTTPS example is in
 `nginx-https.conf.example`; replace `APP_DOMAIN` after DNS is ready.
+
+## Metrics and checks
+
+The Node Exporter role exposes host metrics on port `9100`, restricted to the
+monitoring network. Nginx forwards application health and Prometheus metrics
+from management port `9090`.
+
+| Area | Required metrics or endpoint |
+| --- | --- |
+| CPU | `node_load1`, `node_cpu_seconds_total` |
+| Memory | `node_memory_MemAvailable_bytes`, `node_memory_MemTotal_bytes` |
+| Disk | `node_filesystem_avail_bytes`, `node_filesystem_size_bytes` |
+| Network | `node_network_receive_bytes_total`, `node_network_transmit_bytes_total` |
+| Processes | `node_processes_running`, `node_processes_blocked` |
+| Services | `node_systemd_unit_state` |
+| Application | `process_uptime_seconds`, `http_server_requests_seconds_count` |
+
+Local checks:
+
+```bash
+curl http://localhost:9090/actuator/health
+curl http://localhost:9090/actuator/prometheus
+curl http://localhost/actuator/health
+```
