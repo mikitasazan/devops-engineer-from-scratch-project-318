@@ -65,6 +65,36 @@
           - "{{ prometheus_root }}/rules:/etc/prometheus/rules:ro"
           - "{{ prometheus_root }}/data:/prometheus"
 
+    - name: Create Loki data directory
+      ansible.builtin.file:
+        path: "{{ prometheus_root }}/loki"
+        state: directory
+        owner: 10001
+        group: 10001
+        mode: "0755"
+
+    - name: Install Loki configuration
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../monitoring/loki/loki.yml"
+        dest: "{{ prometheus_root }}/loki/loki.yml"
+        mode: "0644"
+      notify: Restart Loki
+
+    - name: Run Loki
+      community.docker.docker_container:
+        name: loki
+        image: grafana/loki:3.2.1
+        state: started
+        restart_policy: unless-stopped
+        command: -config.file=/etc/loki/loki.yml
+        published_ports:
+          - "3100:3100"
+        networks:
+          - name: monitoring
+        volumes:
+          - "{{ prometheus_root }}/loki/loki.yml:/etc/loki/loki.yml:ro"
+          - "{{ prometheus_root }}/loki:/loki"
+
     - name: Create Grafana directories
       ansible.builtin.file:
         path: "{{ item }}"
@@ -144,5 +174,11 @@
     - name: Restart Grafana
       community.docker.docker_container:
         name: grafana
+        state: started
+        restart: true
+
+    - name: Restart Loki
+      community.docker.docker_container:
+        name: loki
         state: started
         restart: true

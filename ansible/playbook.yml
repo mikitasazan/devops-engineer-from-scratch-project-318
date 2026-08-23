@@ -22,6 +22,7 @@
     - geerlingguy.docker
     - node_exporter
     - nginx_exporter
+    - promtail
 
   tasks:
     - name: Allow SSH

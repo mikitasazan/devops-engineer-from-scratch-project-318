@@ -55,6 +55,10 @@ Nginx Exporter is deployed by the `nginx_exporter` role and exposes `/metrics`
 on port `9113`. Nginx `stub_status` is restricted to the monitoring network;
 the Prometheus target is defined in `ansible/group_vars/monitoring/vars.yml`.
 
+Loki receives JSON container logs from Promtail. In Grafana, use LogQL
+queries such as `{job="containers", level="ERROR"}` for errors or
+`{job="containers", app="bulletins"}` for application logs.
+
 ```bash
 ansible-playbook -i ansible/inventory ansible/playbook.yml --syntax-check
 ansible-playbook -i ansible/inventory ansible/deploy.yml --syntax-check

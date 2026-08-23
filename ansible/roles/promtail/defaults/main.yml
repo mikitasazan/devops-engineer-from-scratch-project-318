@@ -1,0 +1,3 @@
+---
+promtail_image: grafana/promtail:3.2.1
+promtail_loki_url: http://monitoring-server:3100

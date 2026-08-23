@@ -1,0 +1,32 @@
+---
+- name: Create Promtail network
+  community.docker.docker_network:
+    name: internal
+    state: present
+
+- name: Create Promtail configuration directory
+  ansible.builtin.file:
+    path: /opt/promtail
+    state: directory
+    mode: "0755"
+
+- name: Install Promtail configuration
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../monitoring/promtail/promtail.yml"
+    dest: /opt/promtail/promtail.yml
+    mode: "0644"
+
+- name: Run Promtail
+  community.docker.docker_container:
+    name: promtail
+    image: "{{ promtail_image }}"
+    state: started
+    restart_policy: unless-stopped
+    command: -config.file=/etc/promtail/promtail.yml
+    networks:
+      - name: internal
+    volumes:
+      - /opt/promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - promtail-positions:/tmp
