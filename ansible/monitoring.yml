@@ -1,0 +1,73 @@
+---
+- name: Deploy Prometheus monitoring server
+  hosts: monitoring
+  become: true
+  vars:
+    prometheus_image: prom/prometheus:v2.55.1
+    prometheus_root: /opt/prometheus
+
+  roles:
+    - geerlingguy.docker
+
+  tasks:
+    - name: Create Prometheus directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      loop:
+        - "{{ prometheus_root }}/config"
+        - "{{ prometheus_root }}/rules"
+        - "{{ prometheus_root }}/data"
+
+    - name: Install Prometheus configuration
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../monitoring/prometheus/prometheus.yml"
+        dest: "{{ prometheus_root }}/config/prometheus.yml"
+        mode: "0644"
+      notify: Restart Prometheus
+
+    - name: Install Prometheus alert rules
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../monitoring/prometheus/rules/alerts.yml"
+        dest: "{{ prometheus_root }}/rules/alerts.yml"
+        mode: "0644"
+      notify: Restart Prometheus
+
+    - name: Pull Prometheus image
+      community.docker.docker_image:
+        name: "{{ prometheus_image }}"
+        source: pull
+
+    - name: Create monitoring network
+      community.docker.docker_network:
+        name: monitoring
+        state: present
+
+    - name: Run Prometheus
+      community.docker.docker_container:
+        name: prometheus
+        image: "{{ prometheus_image }}"
+        state: started
+        restart_policy: unless-stopped
+        command:
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--storage.tsdb.path=/prometheus"
+          - "--web.enable-lifecycle"
+        published_ports:
+          - "{{ prometheus_external_port }}:9090"
+        networks:
+          - name: monitoring
+        volumes:
+          - "{{ prometheus_root }}/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+          - "{{ prometheus_root }}/rules:/etc/prometheus/rules:ro"
+          - "{{ prometheus_root }}/data:/prometheus"
+
+  handlers:
+    - name: Restart Prometheus
+      community.docker.docker_container:
+        name: prometheus
+        state: started
+        restart: true

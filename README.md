@@ -32,11 +32,16 @@ back.
 - `ansible/playbook.yml` prepares the server and installs Docker.
 - `ansible/deploy.yml` pulls the selected image and starts the application.
 - `ansible/certbot.yml` configures Let’s Encrypt certificate renewal.
+- `ansible/monitoring.yml` deploys Prometheus on the `monitoring` host group.
 - `ansible/requirements.yml` lists roles and collections.
 - `ansible/group_vars/app/vars.yml` contains non-secret variables.
 
 Create `ansible/group_vars/app/vault.yml` from the example and encrypt it with
 Ansible Vault. The decrypted file is ignored by Git.
+
+The Prometheus UI is available at `http://<monitoring-host>:9090/graph` after
+running `make monitoring-deploy`. Its configured targets are the application
+Actuator endpoint and Node Exporter; both must report `up == 1`.
 
 ```bash
 ansible-playbook -i ansible/inventory ansible/playbook.yml --syntax-check

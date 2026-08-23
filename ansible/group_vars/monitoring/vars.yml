@@ -1,0 +1,5 @@
+prometheus_external_port: 9090
+prometheus_app_targets:
+  - "app-server:9090"
+prometheus_node_targets:
+  - "app-server:9100"

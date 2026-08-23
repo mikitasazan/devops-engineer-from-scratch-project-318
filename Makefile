@@ -31,10 +31,13 @@ docker-run:
 deploy:
 	ansible-playbook -i ansible/inventory ansible/deploy.yml -e image=$(IMAGE)
 
+monitoring-deploy:
+	ansible-playbook -i ansible/inventory ansible/monitoring.yml
+
 lint:
 	./gradlew spotlessCheck
 
 lint-fix:
 	./gradlew spotlessApply
 
-.PHONY: build docker-build docker-run deploy ansible-install
+.PHONY: build docker-build docker-run deploy monitoring-deploy ansible-install
