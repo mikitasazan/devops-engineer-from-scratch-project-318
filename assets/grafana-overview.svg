@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">Bulletin Board Grafana dashboard layout</title>
+  <desc id="desc">Dashboard layout with CPU usage, HTTP request rate, target health, and Nginx request rate panels.</desc>
+  <rect width="1200" height="650" fill="#111827"/>
+  <text x="32" y="48" fill="#f9fafb" font-family="sans-serif" font-size="26" font-weight="700">Bulletin Board Overview</text>
+  <g fill="#1f2937" stroke="#374151" stroke-width="2">
+    <rect x="32" y="80" width="550" height="220" rx="8"/>
+    <rect x="618" y="80" width="550" height="220" rx="8"/>
+    <rect x="32" y="326" width="1136" height="140" rx="8"/>
+    <rect x="32" y="492" width="1136" height="120" rx="8"/>
+  </g>
+  <g fill="#d1d5db" font-family="sans-serif" font-size="18">
+    <text x="56" y="116">CPU usage</text>
+    <text x="642" y="116">HTTP request rate</text>
+    <text x="56" y="362">Target health</text>
+    <text x="56" y="528">Nginx requests per second</text>
+  </g>
+  <g stroke="#60a5fa" stroke-width="4" fill="none">
+    <path d="M56 260 C130 210 160 250 220 190 S330 220 390 160 S480 205 550 140"/>
+    <path d="M642 260 C710 240 760 215 820 230 S930 170 990 205 S1080 165 1140 180"/>
+  </g>
+  <g stroke="#34d399" stroke-width="4" fill="none">
+    <path d="M56 430 L220 430 L390 430 L550 430 L710 430 L870 430 L1030 430 L1140 430"/>
+    <path d="M56 590 C200 580 320 600 460 565 S700 580 820 550 S1020 570 1140 545"/>
+  </g>
+</svg>
