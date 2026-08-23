@@ -28,6 +28,15 @@
       "targets": [{"expr": "up", "refId": "A"}],
       "title": "Target health",
       "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+      "id": 4,
+      "targets": [{"expr": "sum(rate(nginx_http_requests_total[1m]))", "refId": "A"}],
+      "title": "Nginx requests per second",
+      "type": "timeseries"
     }
   ],
   "schemaVersion": 39,

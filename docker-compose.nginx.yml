@@ -11,6 +11,16 @@ services:
       - nginx-cache:/var/cache/nginx
     networks: [internal]
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.4.2
+    depends_on:
+      nginx:
+        condition: service_started
+    command: ["-nginx.scrape-uri=http://nginx/stub_status"]
+    expose:
+      - "9113"
+    networks: [internal]
+
 volumes:
   nginx-cache:
 

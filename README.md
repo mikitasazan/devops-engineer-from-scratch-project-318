@@ -51,6 +51,10 @@ contact point from `ALERT_WEBHOOK_URL`, which must be supplied through Vault or
 the CI environment. To test alerting, stop the application container, wait for
 the five-minute `TargetDown` period, and check the Grafana Alerting page.
 
+Nginx Exporter is deployed by the `nginx_exporter` role and exposes `/metrics`
+on port `9113`. Nginx `stub_status` is restricted to the monitoring network;
+the Prometheus target is defined in `ansible/group_vars/monitoring/vars.yml`.
+
 ```bash
 ansible-playbook -i ansible/inventory ansible/playbook.yml --syntax-check
 ansible-playbook -i ansible/inventory ansible/deploy.yml --syntax-check

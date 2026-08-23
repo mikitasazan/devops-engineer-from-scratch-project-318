@@ -21,6 +21,7 @@
   roles:
     - geerlingguy.docker
     - node_exporter
+    - nginx_exporter
 
   tasks:
     - name: Allow SSH

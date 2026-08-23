@@ -1,0 +1,4 @@
+---
+nginx_exporter_image: nginx/nginx-prometheus-exporter:1.4.2
+nginx_exporter_port: 9113
+nginx_exporter_scrape_uri: http://nginx/stub_status

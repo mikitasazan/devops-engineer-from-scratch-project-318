@@ -3,4 +3,6 @@ prometheus_app_targets:
   - "app-server:9090"
 prometheus_node_targets:
   - "app-server:9100"
+prometheus_nginx_targets:
+  - "app-server:9113"
 grafana_admin_password: "{{ vault_grafana_admin_password }}"
