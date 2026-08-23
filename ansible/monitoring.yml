@@ -65,9 +65,73 @@
           - "{{ prometheus_root }}/rules:/etc/prometheus/rules:ro"
           - "{{ prometheus_root }}/data:/prometheus"
 
+    - name: Create Grafana directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: 472
+        group: 472
+        mode: "0755"
+      loop:
+        - "{{ prometheus_root }}/grafana"
+        - "{{ prometheus_root }}/grafana/provisioning/datasources"
+        - "{{ prometheus_root }}/grafana/provisioning/dashboards"
+        - "{{ prometheus_root }}/grafana/dashboards"
+
+    - name: Install Grafana datasource provisioning
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../monitoring/grafana/provisioning/datasources/datasources.yml"
+        dest: "{{ prometheus_root }}/grafana/provisioning/datasources/datasources.yml"
+        owner: 472
+        group: 472
+        mode: "0644"
+      notify: Restart Grafana
+
+    - name: Install Grafana dashboard provisioning
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../monitoring/grafana/provisioning/dashboards/dashboards.yml"
+        dest: "{{ prometheus_root }}/grafana/provisioning/dashboards/dashboards.yml"
+        owner: 472
+        group: 472
+        mode: "0644"
+      notify: Restart Grafana
+
+    - name: Install Grafana dashboard
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../monitoring/grafana/dashboards/overview.json"
+        dest: "{{ prometheus_root }}/grafana/dashboards/overview.json"
+        owner: 472
+        group: 472
+        mode: "0644"
+      notify: Restart Grafana
+
+    - name: Run Grafana
+      community.docker.docker_container:
+        name: grafana
+        image: grafana/grafana:11.3.0
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "3000:3000"
+        env:
+          GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password }}"
+          GF_USERS_ALLOW_SIGN_UP: "false"
+        networks:
+          - name: monitoring
+        volumes:
+          - "{{ prometheus_root }}/grafana:/var/lib/grafana"
+          - "{{ prometheus_root }}/grafana/provisioning:/etc/grafana/provisioning:ro"
+          - "{{ prometheus_root }}/grafana/dashboards:/var/lib/grafana/dashboards:ro"
+
   handlers:
     - name: Restart Prometheus
       community.docker.docker_container:
         name: prometheus
+        state: started
+        restart: true
+
+    - name: Restart Grafana
+      community.docker.docker_container:
+        name: grafana
         state: started
         restart: true

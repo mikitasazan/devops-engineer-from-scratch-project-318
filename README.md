@@ -39,9 +39,11 @@ back.
 Create `ansible/group_vars/app/vault.yml` from the example and encrypt it with
 Ansible Vault. The decrypted file is ignored by Git.
 
-The Prometheus UI is available at `http://<monitoring-host>:9090/graph` after
-running `make monitoring-deploy`. Its configured targets are the application
-Actuator endpoint and Node Exporter; both must report `up == 1`.
+The Prometheus UI is available at `http://<monitoring-host>:9090/graph` and
+Grafana at `http://<monitoring-host>:3000` after running
+`make monitoring-deploy`. Grafana provisions the Prometheus datasource and the
+Bulletin Board Overview dashboard automatically. Its admin password comes from
+`vault_grafana_admin_password`.
 
 ```bash
 ansible-playbook -i ansible/inventory ansible/playbook.yml --syntax-check
