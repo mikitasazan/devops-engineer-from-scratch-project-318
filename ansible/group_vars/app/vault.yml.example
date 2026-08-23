@@ -1,0 +1,4 @@
+# Copy this file to vault.yml and encrypt it with ansible-vault before deployment.
+vault_postgres_password: replace-me
+vault_storage_s3_access_key: replace-me
+vault_storage_s3_secret_key: replace-me

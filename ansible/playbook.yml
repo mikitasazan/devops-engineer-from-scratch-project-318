@@ -1,0 +1,41 @@
+---
+- name: Prepare application server
+  hosts: app
+  become: true
+  vars:
+    docker_users:
+      - "{{ ansible_user }}"
+    docker_install_compose_plugin: true
+
+  pre_tasks:
+    - name: Install basic server utilities
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - git
+          - ufw
+        state: present
+        update_cache: true
+
+  roles:
+    - geerlingguy.docker
+
+  tasks:
+    - name: Allow SSH
+      community.general.ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+
+    - name: Allow application traffic
+      community.general.ufw:
+        rule: allow
+        port: "80,443"
+        proto: tcp
+
+    - name: Enable firewall with a deny-by-default policy
+      community.general.ufw:
+        state: enabled
+        policy: deny
+        direction: incoming

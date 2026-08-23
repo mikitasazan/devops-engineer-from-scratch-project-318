@@ -1,0 +1,2 @@
+app_domain: app.example.com
+letsencrypt_email: admin@example.com

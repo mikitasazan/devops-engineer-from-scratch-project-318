@@ -1,0 +1,41 @@
+---
+- name: Deploy bulletin board
+  hosts: app
+  become: true
+  vars:
+    bulletin_board_image: "{{ image | default('ghcr.io/mikitasazan/devops-engineer-from-scratch-project-315:latest') }}"
+    bulletin_board_container: bulletin-board
+    bulletin_board_root: /opt/bulletin-board
+
+  tasks:
+    - name: Create persistent application directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      loop:
+        - "{{ bulletin_board_root }}"
+        - "{{ bulletin_board_root }}/logs"
+        - "{{ bulletin_board_root }}/data"
+
+    - name: Pull the selected image
+      community.docker.docker_image:
+        name: "{{ bulletin_board_image }}"
+        source: pull
+
+    - name: Run the application container
+      community.docker.docker_container:
+        name: "{{ bulletin_board_container }}"
+        image: "{{ bulletin_board_image }}"
+        state: started
+        restart_policy: unless-stopped
+        recreate: false
+        pull: true
+        published_ports:
+          - "80:8080"
+          - "9090:9090"
+        volumes:
+          - "{{ bulletin_board_root }}/logs:/app/logs"
+          - "{{ bulletin_board_root }}/data:/app/data"

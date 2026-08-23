@@ -1,0 +1,5 @@
+[app]
+app-server ansible_host=YOUR_YANDEX_VM_IP ansible_user=ubuntu
+
+[app:vars]
+ansible_python_interpreter=/usr/bin/python3
