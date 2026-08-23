@@ -41,3 +41,4 @@ out/
 .env
 .env.s3
 group_vars/app/vault.yml
+group_vars/monitoring/vault.yml

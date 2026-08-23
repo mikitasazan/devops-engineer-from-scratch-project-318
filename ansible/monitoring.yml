@@ -76,6 +76,7 @@
         - "{{ prometheus_root }}/grafana"
         - "{{ prometheus_root }}/grafana/provisioning/datasources"
         - "{{ prometheus_root }}/grafana/provisioning/dashboards"
+        - "{{ prometheus_root }}/grafana/provisioning/alerting"
         - "{{ prometheus_root }}/grafana/dashboards"
 
     - name: Install Grafana datasource provisioning
@@ -105,6 +106,15 @@
         mode: "0644"
       notify: Restart Grafana
 
+    - name: Install Grafana contact point provisioning
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../monitoring/grafana/provisioning/alerting/contactpoints.yml"
+        dest: "{{ prometheus_root }}/grafana/provisioning/alerting/contactpoints.yml"
+        owner: 472
+        group: 472
+        mode: "0644"
+      notify: Restart Grafana
+
     - name: Run Grafana
       community.docker.docker_container:
         name: grafana
@@ -116,6 +126,7 @@
         env:
           GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password }}"
           GF_USERS_ALLOW_SIGN_UP: "false"
+          ALERT_WEBHOOK_URL: "{{ vault_alert_webhook_url }}"
         networks:
           - name: monitoring
         volumes:

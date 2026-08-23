@@ -45,6 +45,12 @@ Grafana at `http://<monitoring-host>:3000` after running
 Bulletin Board Overview dashboard automatically. Its admin password comes from
 `vault_grafana_admin_password`.
 
+Prometheus rules in `monitoring/prometheus/rules/alerts.yml` cover target
+availability and application 5xx responses. Grafana provisions a webhook
+contact point from `ALERT_WEBHOOK_URL`, which must be supplied through Vault or
+the CI environment. To test alerting, stop the application container, wait for
+the five-minute `TargetDown` period, and check the Grafana Alerting page.
+
 ```bash
 ansible-playbook -i ansible/inventory ansible/playbook.yml --syntax-check
 ansible-playbook -i ansible/inventory ansible/deploy.yml --syntax-check
