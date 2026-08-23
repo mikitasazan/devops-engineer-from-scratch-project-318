@@ -27,6 +27,25 @@ make deploy IMAGE=ghcr.io/mikitasazan/devops-engineer-from-scratch-project-318:<
 The deployment uses an immutable image tag. Use an earlier SHA tag to roll
 back.
 
+## Deployment from zero
+
+1. Create two Ubuntu VMs in the same VPC: one in the `app` group and one in
+   the `monitoring` group. Add their public IPs to `ansible/inventory` and keep
+   SSH private keys outside Git.
+2. Copy and encrypt `ansible/group_vars/app/vault.yml.example` and
+   `ansible/group_vars/monitoring/vault.yml.example` with Ansible Vault.
+3. Install roles and collections with `make ansible-install`.
+4. Prepare the application VM with `ansible/playbook.yml`, then deploy the
+   image with `make deploy IMAGE=...`.
+5. Deploy Prometheus, Loki, and Grafana with `make monitoring-deploy`.
+6. Point DNS to the application VM, run `ansible/certbot.yml`, and verify the
+   HTTPS URL.
+
+Ports: SSH `22`, HTTP/HTTPS `80/443`, application `8080`, management `9090`,
+Node Exporter `9100`, Nginx Exporter `9113`, Prometheus `9090`, Grafana `3000`,
+and Loki `3100`. Expose monitoring ports only to the monitoring VPC/security
+group.
+
 ## Ansible
 
 - `ansible/playbook.yml` prepares the server and installs Docker.
@@ -62,6 +81,8 @@ queries such as `{job="containers", level="ERROR"}` for errors or
 ```bash
 ansible-playbook -i ansible/inventory ansible/playbook.yml --syntax-check
 ansible-playbook -i ansible/inventory ansible/deploy.yml --syntax-check
+make lint
+make smoke APP_URL=https://app.example.com PROMETHEUS_URL=http://monitoring.example.com:9090
 ```
 
 ## Local PostgreSQL and S3

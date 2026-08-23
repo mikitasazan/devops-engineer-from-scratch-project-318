@@ -1,6 +1,15 @@
 test:
 	./gradlew test
 
+lint:
+	./gradlew spotlessCheck
+	ansible-lint ansible
+
+smoke:
+	curl --fail --silent --show-error "$${APP_URL:-http://localhost:8080}/api/bulletins" >/dev/null
+	curl --fail --silent --show-error "$${APP_URL:-http://localhost:8080}/actuator/health" >/dev/null
+	curl --fail --silent --show-error "$${PROMETHEUS_URL:-http://localhost:9090}/-/ready" >/dev/null
+
 start: run
 
 run:
@@ -34,10 +43,7 @@ deploy:
 monitoring-deploy:
 	ansible-playbook -i ansible/inventory ansible/monitoring.yml
 
-lint:
-	./gradlew spotlessCheck
-
 lint-fix:
 	./gradlew spotlessApply
 
-.PHONY: build docker-build docker-run deploy monitoring-deploy ansible-install
+.PHONY: build docker-build docker-run deploy monitoring-deploy ansible-install lint lint-fix smoke
