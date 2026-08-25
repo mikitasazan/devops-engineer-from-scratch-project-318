@@ -87,10 +87,12 @@ make smoke APP_URL=https://app.example.com PROMETHEUS_URL=http://monitoring.exam
 
 ## Local PostgreSQL and S3
 
-Copy `.env.example` and `.env.s3.example` to local files, set strong local
-passwords, and start the stack:
+Build the application image first, then copy `.env.example` and
+`.env.s3.example` to local files, set strong local passwords, and start the
+stack:
 
 ```bash
+make docker-build
 docker compose --env-file .env.example --env-file .env.s3 \
   -f docker-compose.prod.yml -f docker-compose.s3.yml up -d
 ```
