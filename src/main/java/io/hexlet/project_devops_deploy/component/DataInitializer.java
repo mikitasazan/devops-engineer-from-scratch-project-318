@@ -3,6 +3,7 @@ package io.hexlet.project_devops_deploy.component;
 import io.hexlet.project_devops_deploy.model.Bulletin;
 import io.hexlet.project_devops_deploy.repository.BulletinRepository;
 import io.hexlet.project_devops_deploy.storage.ImageStorageService;
+import io.hexlet.project_devops_deploy.storage.StorageException;
 import io.hexlet.project_devops_deploy.util.ModelGenerator;
 import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
@@ -87,7 +88,7 @@ public class DataInitializer implements ApplicationRunner {
             MultipartFile file = new InMemoryMultipartFile("file", filename, contentType, content);
             String key = imageStorageService.upload("bulletins/sample", file);
             bulletin.setImageKey(key);
-        } catch (IOException e) {
+        } catch (IOException | StorageException e) {
             log.warn("Failed to attach image {}: {}", image.getFilename(), e.getMessage());
         }
     }

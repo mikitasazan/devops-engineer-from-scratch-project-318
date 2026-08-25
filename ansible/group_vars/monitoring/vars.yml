@@ -1,8 +1,8 @@
 prometheus_external_port: 9090
 prometheus_app_targets:
-  - "app-server:9090"
+  - "{{ hostvars[groups['app'][0]].ansible_host }}:9090"
 prometheus_node_targets:
-  - "app-server:9100"
+  - "{{ hostvars[groups['app'][0]].ansible_host }}:9100"
 prometheus_nginx_targets:
-  - "app-server:9113"
+  - "{{ hostvars[groups['app'][0]].ansible_host }}:9113"
 grafana_admin_password: "{{ vault_grafana_admin_password }}"

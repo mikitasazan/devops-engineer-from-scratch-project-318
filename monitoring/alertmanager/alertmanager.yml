@@ -1,0 +1,9 @@
+route:
+  receiver: webhook
+  group_by: ["alertname"]
+
+receivers:
+  - name: webhook
+    webhook_configs:
+      - url: "{{ vault_alert_webhook_url }}"
+        send_resolved: true

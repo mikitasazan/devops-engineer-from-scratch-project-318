@@ -20,7 +20,14 @@
       loop:
         - "{{ prometheus_root }}/config"
         - "{{ prometheus_root }}/rules"
-        - "{{ prometheus_root }}/data"
+
+    - name: Create Prometheus data directory
+      ansible.builtin.file:
+        path: "{{ prometheus_root }}/data"
+        state: directory
+        owner: "65534"
+        group: "65534"
+        mode: "0755"
 
     - name: Install Prometheus configuration
       ansible.builtin.template:
@@ -36,6 +43,21 @@
         mode: "0644"
       notify: Restart Prometheus
 
+    - name: Create Alertmanager directory
+      ansible.builtin.file:
+        path: "{{ prometheus_root }}/alertmanager"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Install Alertmanager configuration
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../../monitoring/alertmanager/alertmanager.yml"
+        dest: "{{ prometheus_root }}/alertmanager/alertmanager.yml"
+        mode: "0644"
+      notify: Restart Alertmanager
+
     - name: Pull Prometheus image
       community.docker.docker_image:
         name: "{{ prometheus_image }}"
@@ -45,6 +67,19 @@
       community.docker.docker_network:
         name: monitoring
         state: present
+
+    - name: Run Alertmanager
+      community.docker.docker_container:
+        name: alertmanager
+        image: prom/alertmanager:v0.27.0
+        state: started
+        restart_policy: unless-stopped
+        command:
+          - "--config.file=/etc/alertmanager/alertmanager.yml"
+        networks:
+          - name: monitoring
+        volumes:
+          - "{{ prometheus_root }}/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro"
 
     - name: Run Prometheus
       community.docker.docker_container:
@@ -165,6 +200,12 @@
           - "{{ prometheus_root }}/grafana/dashboards:/var/lib/grafana/dashboards:ro"
 
   handlers:
+    - name: Restart Alertmanager
+      community.docker.docker_container:
+        name: alertmanager
+        state: started
+        restart: true
+
     - name: Restart Prometheus
       community.docker.docker_container:
         name: prometheus

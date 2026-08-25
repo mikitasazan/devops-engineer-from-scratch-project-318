@@ -42,3 +42,26 @@
         state: enabled
         policy: deny
         direction: incoming
+
+    - name: Restrict the management/actuator port to the monitoring host only
+      # Docker publishes container ports via its own iptables rules, which run
+      # ahead of ufw's chain, so ufw's deny-by-default above never sees this
+      # traffic. The DOCKER-USER chain is the documented hook point Docker
+      # guarantees will not be overwritten by the daemon.
+      ansible.builtin.iptables:
+        chain: DOCKER-USER
+        protocol: tcp
+        destination_port: "9090"
+        source: "{{ hostvars[groups['monitoring'][0]].ansible_host }}"
+        jump: RETURN
+        action: insert
+        rule_num: 1
+
+    - name: Drop all other access to the management/actuator port
+      ansible.builtin.iptables:
+        chain: DOCKER-USER
+        protocol: tcp
+        destination_port: "9090"
+        jump: DROP
+        action: insert
+        rule_num: 2

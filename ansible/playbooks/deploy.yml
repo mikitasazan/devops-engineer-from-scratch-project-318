@@ -19,6 +19,7 @@
         - "{{ bulletin_board_root }}"
         - "{{ bulletin_board_root }}/logs"
         - "{{ bulletin_board_root }}/data"
+        - "{{ bulletin_board_root }}/certbot-webroot"
 
     - name: Pull the selected image
       community.docker.docker_image:
@@ -34,8 +35,44 @@
         recreate: false
         pull: true
         published_ports:
-          - "80:8080"
           - "9090:9090"
+        networks:
+          - name: internal
+            aliases:
+              - app
+        env:
+          SPRING_PROFILES_ACTIVE: prod
+          SPRING_DATASOURCE_URL: "jdbc:postgresql://localhost:5432/bulletins"
+          SPRING_DATASOURCE_USERNAME: bulletins
+          SPRING_DATASOURCE_PASSWORD: "{{ vault_postgres_password }}"
         volumes:
           - "{{ bulletin_board_root }}/logs:/app/logs"
           - "{{ bulletin_board_root }}/data:/app/data"
+
+    - name: Install nginx configuration
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../nginx.conf"
+        dest: "{{ bulletin_board_root }}/nginx.conf"
+        mode: "0644"
+      notify: Restart nginx
+
+    - name: Run nginx in front of the application
+      community.docker.docker_container:
+        name: nginx
+        image: nginx:1.27-alpine
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "80:80"
+        networks:
+          - name: internal
+        volumes:
+          - "{{ bulletin_board_root }}/nginx.conf:/etc/nginx/nginx.conf:ro"
+          - "{{ bulletin_board_root }}/certbot-webroot:/var/www/certbot:ro"
+
+  handlers:
+    - name: Restart nginx
+      community.docker.docker_container:
+        name: nginx
+        state: started
+        restart: true

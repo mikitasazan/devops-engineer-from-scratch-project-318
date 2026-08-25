@@ -3,16 +3,18 @@
   hosts: app
   become: true
   vars:
+    certbot_webroot: /opt/bulletin-board/certbot-webroot
     certbot_create_if_missing: true
-    certbot_create_method: standalone
+    certbot_create_method: webroot
     certbot_admin_email: "{{ letsencrypt_email }}"
     certbot_auto_renew: true
     certbot_auto_renew_user: root
     certbot_auto_renew_hour: "3"
     certbot_auto_renew_minute: "30"
-    certbot_auto_renew_options: "--quiet --deploy-hook 'systemctl reload nginx'"
+    certbot_auto_renew_options: "--quiet --deploy-hook 'docker restart nginx'"
     certbot_certs:
       - domains:
           - "{{ app_domain }}"
+        webroot: "{{ certbot_webroot }}"
   roles:
     - geerlingguy.certbot

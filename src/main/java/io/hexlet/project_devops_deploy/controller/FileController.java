@@ -3,6 +3,7 @@ package io.hexlet.project_devops_deploy.controller;
 import io.hexlet.project_devops_deploy.dto.FileUploadResponse;
 import io.hexlet.project_devops_deploy.exception.ResourceNotFoundException;
 import io.hexlet.project_devops_deploy.storage.ImageStorageService;
+import java.net.URLConnection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -56,10 +57,9 @@ public class FileController {
                                         new ResourceNotFoundException(
                                                 "Image %s not found".formatted(key)));
 
-        String contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
-        try {
-            contentType = resource.getURL().openConnection().getContentType();
-        } catch (Exception ignored) {
+        String contentType = URLConnection.guessContentTypeFromName(resource.getFilename());
+        if (contentType == null) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
 
         return ResponseEntity.ok()

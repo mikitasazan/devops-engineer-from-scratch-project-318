@@ -15,6 +15,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -101,6 +103,13 @@ public class S3ImageStorageService implements ImageStorageService {
     @Override
     public Optional<String> getUrl(String key) {
         if (!StringUtils.hasText(key)) {
+            return Optional.empty();
+        }
+
+        try {
+            client.headObject(
+                    HeadObjectRequest.builder().bucket(properties.bucket()).key(key).build());
+        } catch (NoSuchKeyException e) {
             return Optional.empty();
         }
 
