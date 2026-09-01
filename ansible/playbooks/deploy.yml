@@ -3,9 +3,11 @@
   hosts: app
   become: true
   vars:
-    bulletin_board_image: "{{ image | default('ghcr.io/mikitasazan/devops-engineer-from-scratch-project-315:latest') }}"
+    bulletin_board_image: "{{ image | default('ghcr.io/mikitasazan/devops-engineer-from-scratch-project-318:latest') }}"
     bulletin_board_container: bulletin-board
     bulletin_board_root: /opt/bulletin-board
+    bulletin_board_db_name: bulletins
+    bulletin_board_db_user: bulletins
 
   tasks:
     - name: Create persistent application directories
@@ -19,7 +21,45 @@
         - "{{ bulletin_board_root }}"
         - "{{ bulletin_board_root }}/logs"
         - "{{ bulletin_board_root }}/data"
+        - "{{ bulletin_board_root }}/postgres-data"
         - "{{ bulletin_board_root }}/certbot-webroot"
+
+    - name: Create the internal application network
+      community.docker.docker_network:
+        name: internal
+        state: present
+
+    - name: Run the database container
+      community.docker.docker_container:
+        name: bulletin-board-db
+        image: postgres:16-alpine
+        state: started
+        restart_policy: unless-stopped
+        networks:
+          - name: internal
+            aliases:
+              - db
+        env:
+          POSTGRES_DB: "{{ bulletin_board_db_name }}"
+          POSTGRES_USER: "{{ bulletin_board_db_user }}"
+          POSTGRES_PASSWORD: "{{ vault_postgres_password }}"
+        volumes:
+          - "{{ bulletin_board_root }}/postgres-data:/var/lib/postgresql/data"
+        healthcheck:
+          test:
+            - CMD-SHELL
+            - "pg_isready -U {{ bulletin_board_db_user }} -d {{ bulletin_board_db_name }}"
+          interval: 5s
+          timeout: 5s
+          retries: 12
+
+    - name: Wait for the database to report healthy
+      community.docker.docker_container_info:
+        name: bulletin-board-db
+      register: bulletin_board_db_info
+      until: bulletin_board_db_info.container.State.Health.Status == "healthy"
+      retries: 24
+      delay: 5
 
     - name: Pull the selected image
       community.docker.docker_image:
@@ -42,8 +82,8 @@
               - app
         env:
           SPRING_PROFILES_ACTIVE: prod
-          SPRING_DATASOURCE_URL: "jdbc:postgresql://localhost:5432/bulletins"
-          SPRING_DATASOURCE_USERNAME: bulletins
+          SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/{{ bulletin_board_db_name }}"
+          SPRING_DATASOURCE_USERNAME: "{{ bulletin_board_db_user }}"
           SPRING_DATASOURCE_PASSWORD: "{{ vault_postgres_password }}"
         volumes:
           - "{{ bulletin_board_root }}/logs:/app/logs"
